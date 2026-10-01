@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CAFO Footprint Simulator · W2R Lab at the Technion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-block">
+      <button type="button" class="brand" id="btn-home" aria-label="CAFO Footprint Simulator — home">
+        <span class="brand-mark"><span class="ic-wrap" data-icon="flows"></span></span><span class="brand-name">CAFO Footprint Simulator</span>
+      </button>
+      <a class="brand-by" href="https://w2r-lab.vercel.app/plastic-atlas.html" target="_blank" rel="noopener">by <b>W2R Lab</b> at the Technion<span class="ic-wrap ic-xs" data-icon="external"></span></a>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn ghost small topbar-btn" id="btn-theme" type="button" aria-label="Toggle colour theme">Theme: Auto</button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <!-- =============================================== intro -->
+    <section id="screen-intro" class="screen intro" aria-label="Welcome">
+      <div class="hero card">
+        <span class="step-kicker kicker-live"><span class="ic-wrap ic-sm" data-icon="activity"></span> Live estimate · global livestock emissions</span>
+        <h1 class="hero-title">Every second, the world's livestock supply chains emit about <span class="hl" id="clock-rate">—</span> tonnes of CO₂-equivalent.</h1>
+
+        <div class="clock" role="timer" aria-live="off">
+          <div class="clock-label">Emitted today since midnight (your local time)</div>
+          <div class="clock-value" id="clock-today">0</div>
+          <div class="clock-unit">tonnes CO₂e</div>
+        </div>
+
+        <div class="fact-row clock-facts">
+          <div class="fact"><strong id="clock-session">0 t</strong>since you opened this page</div>
+          <div class="fact"><strong id="clock-day">—</strong>every single day</div>
+          <div class="fact"><strong id="clock-share">—</strong>of all human-caused greenhouse gases</div>
+        </div>
+
+        <button class="btn calc hero-cta" id="btn-start" type="button">Open the simulator <span class="ic-wrap ic-sm" data-icon="arrowRight"></span></button>
+        <p class="hint" id="clock-source"></p>
+      </div>
+
+      <h2 class="intro-h">Why it matters</h2>
+      <div class="why-grid">
+        <div class="card why"><div class="why-head"><span class="why-ico"><span class="ic-wrap" data-icon="factory"></span></span><div class="why-stat">1 site</div></div><h3>Concentrated animals, concentrated emissions</h3>
+          <p>A CAFO houses thousands of animals at one site. Feed is brought in, and manure accumulates in lagoons, pits and litter, where it releases methane and nitrous oxide.</p></div>
+        <div class="card why"><div class="why-head"><span class="why-ico"><span class="ic-wrap" data-icon="flame"></span></span><div class="why-stat" id="why-methane">≈ 32 %</div></div><h3>Methane: strong and fast-acting</h3>
+          <p>Livestock accounts for about a third of human-caused methane. Over 20 years, methane traps about 80 times more heat than CO₂.</p></div>
+        <div class="card why"><div class="why-head"><span class="why-ico"><span class="ic-wrap" data-icon="flask"></span></span><div class="why-stat">≈ 273×</div></div><h3>Nitrogen losses</h3>
+          <p>Only part of the protein that animals eat is retained in milk, meat or eggs. The rest is excreted and lost as ammonia, nitrate and nitrous oxide (N₂O), a greenhouse gas about 273 times stronger than CO₂ over 100 years.</p></div>
+        <div class="card why"><div class="why-head"><span class="why-ico"><span class="ic-wrap" data-icon="chart"></span></span><div class="why-stat">In → Out</div></div><h3>Measure before you mitigate</h3>
+          <p>The simulator follows every flow through a farm, from feed, water and energy in to products, manure and gases out. That shows where the footprint comes from before mitigation options are compared.</p></div>
+      </div>
+
+      <h2 class="intro-h">How it works</h2>
+      <ol class="how">
+        <li><span class="how-ico"><span class="ic-wrap" data-icon="warehouse"></span></span><b>Define the farm</b><span>Animal category and number of animal places</span></li>
+        <li><span class="how-ico"><span class="ic-wrap" data-icon="sliders"></span></span><b>Set management</b><span>Manure system, climate, electricity grid and system boundary</span></li>
+        <li><span class="how-ico"><span class="ic-wrap" data-icon="calculator"></span></span><b>Calculate</b><span>Annual inventory and emissions using IPCC Tier 2 methods</span></li>
+        <li><span class="how-ico"><span class="ic-wrap" data-icon="flows"></span></span><b>Analyse</b><span>Sankey diagrams of material, nitrogen, carbon and water flows</span></li>
+      </ol>
+      <div class="intro-cta"><button class="btn calc" id="btn-start-2" type="button">Start a scenario <span class="ic-wrap ic-sm" data-icon="arrowRight"></span></button></div>
+      <p class="hint intro-note" id="intro-note"></p>
+      <ul class="intro-refs" id="intro-refs"></ul>
+    </section>
+
+    <!-- =============================================== setup -->
+    <section id="screen-setup" class="screen" aria-label="Scenario setup">
+      <ol class="stepper" id="stepper"></ol>
+      <div class="xp" aria-hidden="true"><div class="xp-fill" id="xp-fill"></div></div>
+
+      <div class="setup-grid">
+        <div class="card step-card">
+          <div class="step-head">
+            <div class="step-title-row"><span class="step-ico" id="step-ico"></span><span class="step-kicker" id="step-kicker"></span></div>
+            <h1 id="step-title"></h1>
+            <p id="step-sub"></p>
+          </div>
+          <div id="step-body"></div>
+          <div class="step-nav">
+            <button class="btn" id="btn-back" type="button">← Back</button>
+            <button class="btn primary" id="btn-next" type="button">Next →</button>
+          </div>
+        </div>
+
+        <aside class="card summary" aria-label="Scenario summary">
+          <h2>Scenario summary</h2>
+          <dl class="summary-list" id="summary-list"></dl>
+          <button class="btn calc" id="btn-calc" type="button"><span class="ic-wrap ic-sm" data-icon="calculator"></span> Calculate</button>
+          <p class="hint">You can calculate at any step; options you have not set use business-as-usual defaults. Methods follow IPCC 2019 Tier 2; the full source list is shown with the results.</p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- =============================================== loading -->
+    <section id="screen-loading" class="screen loading" aria-live="polite" hidden>
+      <div class="spinner" aria-hidden="true"></div>
+      <p class="loader-msg" id="loader-msg">Calculating…</p>
+      <div class="loader-bar"><div></div></div>
+    </section>
+
+    <!-- =============================================== results -->
+    <section id="screen-results" class="screen" aria-label="Results" hidden>
+      <div class="result-head">
+        <div>
+          <span class="step-kicker">Results</span>
+          <h1 id="result-title"></h1>
+          <div class="chips" id="result-chips"></div>
+        </div>
+        <div class="result-actions">
+          <button class="btn" id="btn-edit" type="button"><span class="ic-wrap ic-sm" data-icon="pencil"></span> Edit inputs</button>
+          <button class="btn" id="btn-new" type="button"><span class="ic-wrap ic-sm" data-icon="plus"></span> New scenario</button>
+          <button class="btn" id="btn-csv" type="button"><span class="ic-wrap ic-sm" data-icon="download"></span> Export CSV</button>
+        </div>
+      </div>
+
+      <div class="lenses" role="tablist" aria-label="Perspective">
+        <button role="tab" type="button" data-view="mass"><b><span class="ic-wrap ic-sm" data-icon="layers"></span> Material flows</b><small>Inputs and outputs by mass</small></button>
+        <button role="tab" type="button" data-view="nitrogen"><b><span class="ic-wrap ic-sm" data-icon="flask"></span> Nitrogen balance</b><small>Fate of feed nitrogen</small></button>
+        <button role="tab" type="button" data-view="carbon"><b><span class="ic-wrap ic-sm" data-icon="cloud"></span> Carbon footprint</b><small>GHG emissions as CO₂e</small></button>
+        <button role="tab" type="button" data-view="water"><b><span class="ic-wrap ic-sm" data-icon="droplet"></span> Water footprint</b><small>Green, blue and grey water</small></button>
+      </div>
+
+      <div class="card">
+        <div class="panel-head">
+          <h2 id="flow-title"></h2>
+          <button class="btn ghost small" id="btn-replay" type="button"><span class="ic-wrap ic-sm" data-icon="rotate"></span> Replay animation</button>
+        </div>
+        <div class="sankey-wrap" id="sankey"></div>
+        <p class="hint" id="flow-note"></p>
+      </div>
+
+      <div class="kpis" id="kpis"></div>
+      <div id="warnings"></div>
+      <div id="detail"></div>
+
+      <div class="card">
+        <details class="assume" id="assume">
+          <summary><span><span class="ic-wrap ic-sm" data-icon="sliders"></span> Advanced settings — assumptions &amp; coefficients</span><small id="assume-count"></small></summary>
+          <p class="hint" style="margin:10px 0 12px">Every coefficient can be edited; results update instantly. Defaults are indicative business-as-usual values — replace them with site data or your inventory's factors where available.</p>
+          <div class="table-scroll"><table class="assume-table" id="assume-table"></table></div>
+        </details>
+      </div>
+
+      <div class="card" id="sources-card">
+        <details class="assume" id="sources" open>
+          <summary><span><span class="ic-wrap ic-sm" data-icon="book"></span> Methods &amp; sources</span><small>every calculation step and coefficient, referenced</small></summary>
+          <div class="methods" id="sources-body"></div>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span><b>CAFO Footprint Simulator</b> · business-as-usual footprints of concentrated animal feeding operations</span>
+      <a href="https://w2r-lab.vercel.app/plastic-atlas.html" target="_blank" rel="noopener">by W2R Lab at the Technion <span class="ic-wrap ic-xs" data-icon="external"></span></a>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/model.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
