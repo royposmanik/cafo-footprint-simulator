@@ -1,6 +1,6 @@
 # CAFO Footprint Simulator (business as usual)
 
-by [W2R Lab](https://w2r-lab.vercel.app/plastic-atlas.html) at the Technion
+by [W2R Lab](https://w2r-lab.vercel.app/index.html) at the Technion
 
 A browser tool for estimating the annual inputs, outputs and greenhouse-gas emissions of a
 concentrated animal feeding operation (CAFO) run as **business as usual (BAU)**.
