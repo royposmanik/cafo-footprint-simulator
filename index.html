@@ -7,13 +7,22 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
   <header class="topbar">
     <div class="brand-block">
       <button type="button" class="brand" id="btn-home" aria-label="CAFO Footprint Simulator — home">
-        <span class="brand-mark"><span class="ic-wrap" data-icon="flows"></span></span><span class="brand-name">CAFO Footprint Simulator</span>
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" class="logo-sankey" focusable="false">
+          <path d="M5 7C12 7 12 3 19 3V7.5C12 7.5 12 11.5 5 11.5Z" opacity="0.85"/>
+          <path d="M5 11.5C12 11.5 12 10.5 19 10.5V13.5C12 13.5 12 14.5 5 14.5Z" opacity="0.65"/>
+          <path d="M5 14.5C12 14.5 12 17.5 19 17.5V20C12 20 12 17 5 17Z" opacity="0.45"/>
+          <rect x="3" y="7" width="2" height="10" rx="0.6"/>
+          <rect x="19" y="3" width="2" height="4.5" rx="0.6"/>
+          <rect x="19" y="10.5" width="2" height="3" rx="0.6"/>
+          <rect x="19" y="17.5" width="2" height="2.5" rx="0.6"/>
+        </svg></span><span class="brand-name">CAFO Footprint Simulator</span>
       </button>
       <a class="brand-by" href="https://w2r-lab.vercel.app/index.html" target="_blank" rel="noopener">by <b>W2R Lab</b> at the Technion<span class="ic-wrap ic-xs" data-icon="external"></span></a>
     </div>
