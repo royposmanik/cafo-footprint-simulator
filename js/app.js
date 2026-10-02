@@ -918,7 +918,6 @@
   renderSetup();
   const startSimulator = () => { showScreen('setup'); renderSetup(); };
   $('btn-start').addEventListener('click', startSimulator);
-  $('btn-start-2').addEventListener('click', startSimulator);
   $('btn-home').addEventListener('click', () => showScreen('intro'));
   showScreen('intro');
 })();
