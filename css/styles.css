@@ -455,6 +455,11 @@ details.assume > summary small { font-size: 12px; font-weight: 400; color: var(-
 .card.hero .footnote { max-width: 720px; margin: 14px auto 0; text-align: left; color: var(--on-dark-muted); border-top-color: rgba(255, 255, 255, 0.1); }
 .card.hero .footnote b { color: var(--on-dark); }
 
+.panel-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.phone-only { display: none !important; }
+body.is-phone .phone-only { display: inline-flex !important; }
+body.is-phone .desktop-only { display: none !important; }
+
 /* ------------------------------------------------------------ footer */
 .site-footer { background: var(--ink-dark); color: var(--on-dark-muted); font-size: 13px; }
 .footer-inner { max-width: 1180px; margin: 0 auto; padding: 18px 24px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }

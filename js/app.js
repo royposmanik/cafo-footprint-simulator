@@ -674,6 +674,17 @@
       renderResults(true);
     }));
     $('btn-replay').addEventListener('click', () => renderResults(true));
+    const EX = window.CAFO_EXPORT;
+    document.body.classList.toggle('is-phone', EX.isPhone());
+    const exportWith = (btn, fn) => btn.addEventListener('click', async () => {
+      const label = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `${ic('rotate', 'ic-sm')} Preparing…`;
+      try { await fn(); } catch (e) { alert('Export failed: ' + e.message); } finally { btn.disabled = false; btn.innerHTML = label; }
+    });
+    exportWith($('btn-pdf'), EX.savePDF);
+    exportWith($('btn-jpeg'), EX.saveJPEG);
+    exportWith($('btn-gallery'), EX.saveJPEG);
     $('btn-edit').addEventListener('click', () => { showScreen('setup'); renderSetup(); });
     $('btn-new').addEventListener('click', () => {
       const theme = state.theme;
