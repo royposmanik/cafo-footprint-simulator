@@ -13,6 +13,7 @@
     url: 'https://w2r-lab.vercel.app/index.html',
     urlLabel: 'w2r-lab.vercel.app',
     logo: 'https://w2r-lab.vercel.app/assets/img/w2r-badge.png',
+    technionLogo: 'https://w2r-lab.vercel.app/assets/img/technion-leave-a-mark-light.png', // light version for dark backgrounds
   };
   const APP = { name: 'CAFO Footprint Simulator', url: 'https://cafo-footprint-simulator.vercel.app', urlLabel: 'cafo-footprint-simulator.vercel.app' };
   const JSPDF_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
@@ -57,8 +58,8 @@
       img.src = src;
     });
   }
-  let logoPromise;
-  const getLogo = () => (logoPromise = logoPromise || loadImage(LAB.logo, true).catch(() => null));
+  const logoCache = {};
+  const getImage = (src) => (logoCache[src] = logoCache[src] || loadImage(src, true).catch(() => null));
 
   /** Serialise the live Sankey SVG with light-theme computed styles inlined. */
   function svgToImage(svg) {
@@ -116,7 +117,7 @@
     const svg = $('#sankey svg');
     if (!svg) throw new Error('No figure to export yet.');
     await Promise.all(['400', '600', '700'].map((w) => document.fonts.load(`${w} 40px Figtree`).catch(() => null)));
-    const [fig, logo] = await Promise.all([svgToImage(svg), getLogo()]);
+    const [fig, logo, technion] = await Promise.all([svgToImage(svg), getImage(LAB.logo), getImage(LAB.technionLogo)]);
 
     const canvas = document.createElement('canvas');
     canvas.width = W; canvas.height = H;
@@ -124,7 +125,7 @@
     const M = 90, links = [];
     ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
 
-    // header band — W2R Lab at the Technion
+    // header band — W2R Lab (left) and Technion (right)
     const HB = 200;
     ctx.fillStyle = C.dark; ctx.fillRect(0, 0, W, HB);
     let tx = M;
@@ -139,18 +140,27 @@
     const nameW = ctx.measureText(LAB.name).width;
     ctx.fillStyle = C.onDarkMuted; ctx.font = `400 34px ${FONT}`;
     ctx.fillText('· ' + LAB.full, tx + nameW + 16, 92);
-    ctx.fillText(LAB.institution, tx, 146);
-    ctx.textAlign = 'right';
-    ctx.fillStyle = C.onDark; ctx.font = `600 40px ${FONT}`;
-    ctx.fillText(APP.name, W - M, 92);
+    const inst = LAB.institution + '  ·  ';
+    ctx.fillText(inst, tx, 146);
+    const instW = ctx.measureText(inst).width;
     ctx.fillStyle = C.amber; ctx.font = `600 32px ${FONT}`;
-    ctx.fillText(LAB.urlLabel, W - M, 146);
-    const uw = ctx.measureText(LAB.urlLabel).width;
-    links.push({ x: W - M - uw, y: 146 - 32, w: uw, h: 40, url: LAB.url });
-    ctx.textAlign = 'left';
+    ctx.fillText(LAB.urlLabel, tx + instW, 146);
+    links.push({ x: tx + instW, y: 146 - 32, w: ctx.measureText(LAB.urlLabel).width, h: 40, url: LAB.url });
+    if (technion) {
+      const th = 104, tw = th * technion.naturalWidth / technion.naturalHeight;
+      const tlx = W - M - tw;
+      ctx.drawImage(technion, tlx, (HB - th) / 2, tw, th);
+      ctx.strokeStyle = 'rgba(236, 244, 238, 0.18)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(tlx - 44, 52); ctx.lineTo(tlx - 44, HB - 52); ctx.stroke();
+    }
 
-    // title + scenario
-    let y = HB + 100;
+    // simulator label, figure title + scenario
+    let y = HB + 78;
+    ctx.fillStyle = '#a8690a'; ctx.font = `700 26px ${FONT}`;
+    if ('letterSpacing' in ctx) ctx.letterSpacing = '4px';
+    ctx.fillText(APP.name.toUpperCase(), M, y);
+    if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+    y += 64;
     ctx.fillStyle = C.ink; ctx.font = `700 54px ${FONT}`;
     ctx.fillText(text('#flow-title'), M, y);
     y += 56;

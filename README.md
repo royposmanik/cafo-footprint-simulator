@@ -26,7 +26,7 @@ You choose the operation type and farm size. The tool estimates:
    - **Carbon footprint:** emission sources → GHG Protocol scopes → total CO₂ equivalent, plus a breakdown by source
    - **Water footprint:** feed crops, drinking water, service water and manure nitrate → green / blue / grey → total, plus an inventory table
 
-**Saving figures.** On a computer, *Save PDF* creates an A4 landscape sheet: a W2R Lab at the Technion header with the lab badge and link, the figure, scenario, key numbers, notes, and a dated footer. *Save JPEG* saves the same sheet as an image. On a phone, *Save to gallery* creates a JPEG and opens the share sheet, where "Save Image" adds it to the photo gallery. The lab badge is loaded from w2r-lab.vercel.app, and PDFs use jsPDF from cdnjs.
+**Saving figures.** On a computer, *Save PDF* creates an A4 landscape sheet: a header with the W2R Lab badge, lab details and link, and the Technion logo, the figure, scenario, key numbers, notes, and a dated footer. *Save JPEG* saves the same sheet as an image. On a phone, *Save to gallery* creates a JPEG and opens the share sheet, where "Save Image" adds it to the photo gallery. The W2R badge and Technion logo are loaded from w2r-lab.vercel.app, and PDFs use jsPDF from cdnjs.
 
 Under the results, **Advanced settings** lets you edit every coefficient, and results update immediately. **Methods & sources** lists each calculation step and its references.
 
