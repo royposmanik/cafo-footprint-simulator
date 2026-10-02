@@ -36,12 +36,12 @@
     <section id="screen-intro" class="screen intro" aria-label="Welcome">
       <div class="hero card">
         <span class="step-kicker kicker-live"><span class="ic-wrap ic-sm" data-icon="activity"></span> Live estimate · global livestock emissions</span>
-        <h1 class="hero-title">Every second, the world's livestock supply chains emit about <span class="hl" id="clock-rate">—</span> tonnes of CO₂-equivalent.</h1>
+        <h1 class="hero-title">Every second, the world's livestock supply chains emit about <span class="hl" id="clock-rate">—</span> tonnes of CO₂ equivalent<sup class="fn-mark">*</sup>.</h1>
 
         <div class="clock" role="timer" aria-live="off">
           <div class="clock-label">Emitted today since midnight (your local time)</div>
           <div class="clock-value" id="clock-today">0</div>
-          <div class="clock-unit">tonnes CO₂e</div>
+          <div class="clock-unit">tonnes CO₂ equivalent</div>
         </div>
 
         <div class="fact-row clock-facts">
@@ -52,6 +52,7 @@
 
         <button class="btn calc hero-cta" id="btn-start" type="button">Open the simulator <span class="ic-wrap ic-sm" data-icon="arrowRight"></span></button>
         <p class="hint" id="clock-source"></p>
+        <p class="footnote" id="co2-def-intro"></p>
       </div>
 
       <h2 class="intro-h">Why it matters</h2>
@@ -131,7 +132,7 @@
       <div class="lenses" role="tablist" aria-label="Perspective">
         <button role="tab" type="button" data-view="mass"><b><span class="ic-wrap ic-sm" data-icon="layers"></span> Material flows</b><small>Inputs and outputs by mass</small></button>
         <button role="tab" type="button" data-view="nitrogen"><b><span class="ic-wrap ic-sm" data-icon="flask"></span> Nitrogen balance</b><small>Fate of feed nitrogen</small></button>
-        <button role="tab" type="button" data-view="carbon"><b><span class="ic-wrap ic-sm" data-icon="cloud"></span> Carbon footprint</b><small>GHG emissions as CO₂e</small></button>
+        <button role="tab" type="button" data-view="carbon"><b><span class="ic-wrap ic-sm" data-icon="cloud"></span> Carbon footprint</b><small>GHG emissions as CO₂ equivalent</small></button>
         <button role="tab" type="button" data-view="water"><b><span class="ic-wrap ic-sm" data-icon="droplet"></span> Water footprint</b><small>Green, blue and grey water</small></button>
       </div>
 

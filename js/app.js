@@ -42,7 +42,7 @@
     { id: 'manure', icon: 'tank', label: 'Manure & climate', title: 'Manure management and climate', sub: 'How manure is stored, and the climate it is stored in.' },
     { id: 'power', icon: 'zap', label: 'Energy & boundary', title: 'Energy and system boundary', sub: 'Electricity source, emission sources included, and GWP set.' },
   ];
-  const LOADER = ['Building herd dynamics…', 'Computing feed and water inputs…', 'Estimating manure and nitrogen flows…', 'Converting emissions to CO₂e…'];
+  const LOADER = ['Building herd dynamics…', 'Computing feed and water inputs…', 'Estimating manure and nitrogen flows…', 'Converting emissions to CO₂ equivalent…'];
   const CAR_T_CO2E_PER_YR = 4.6; // typical US passenger vehicle, US EPA
 
   // ------------------------------------------------------------------ citations
@@ -56,6 +56,12 @@
     return `<span class="basis b-${src.basis}" title="${esc(b.label)}">${b.icon} ${esc(b.label)}</span> ${citeRefs(src.refs)} <span class="src-note">${esc(src.note)}</span>`;
   }
   const citeText = (src) => `${D.BASIS[src.basis].label}${src.refs.length ? ' [' + src.refs.map(refNum).join(', ') + ']' : ''} — ${src.note}`;
+
+  /** Footnote text defining CO₂ equivalent for a GWP set. */
+  function co2eqDefinition(gwpKey) {
+    const g = D.GWP[gwpKey];
+    return `<sup class="fn-mark">*</sup> <b>CO₂ equivalent</b> expresses different greenhouse gases as the amount of carbon dioxide that would cause the same warming over 100 years (global warming potential, GWP100). With ${esc(g.label.replace(' GWP100', ''))} factors ${citeRefs([g.ref])}, 1 tonne of methane (CH₄) counts as ${g.CH4} tonnes and 1 tonne of nitrous oxide (N₂O) as ${g.N2O} tonnes of CO₂ equivalent.`;
+  }
 
   // ------------------------------------------------------------------ state
 
@@ -134,9 +140,10 @@
 
   function renderIntroStatic() {
     $('clock-rate').textContent = fmt(T_PER_SEC, 0);
-    $('clock-day').textContent = compact(T_PER_SEC * 86400) + ' CO₂e';
+    $('clock-day').textContent = compact(T_PER_SEC * 86400) + ' CO₂ equivalent';
     $('clock-share').textContent = '≈ ' + fmt(CLK.shareOfAnthropogenic * 100, 0) + ' %';
-    $('clock-source').innerHTML = `Counter: ${compact(CLK.annualTonnesCO2e)} CO₂e per year for ${esc(CLK.scope)} (reference year ${CLK.refYear}), spread evenly over the year ${citeRefs(CLK.src.refs, 'intro-ref-')}. Methane share ${citeRefs(['unep2021'], 'intro-ref-')}; heat-trapping factors ${citeRefs(['ar6'], 'intro-ref-')}.`;
+    $('clock-source').innerHTML = `Counter: ${compact(CLK.annualTonnesCO2e)} CO₂ equivalent per year for ${esc(CLK.scope)} (reference year ${CLK.refYear}), spread evenly over the year ${citeRefs(CLK.src.refs, 'intro-ref-')}. Methane share ${citeRefs(['unep2021'], 'intro-ref-')}; heat-trapping factors ${citeRefs(['ar6'], 'intro-ref-')}.`;
+    $('co2-def-intro').innerHTML = co2eqDefinition('AR6').replace(/href="#ref-/g, 'href="#intro-ref-');
     $('why-methane').textContent = `≈ ${fmt(CLK.methaneShare * 100, 0)} %`;
     $('intro-note').innerHTML = `Why livestock and not only CAFOs? There is no reliable worldwide estimate for CAFOs alone. The counter uses all livestock supply chains ${citeRefs(['fao2023'], 'intro-ref-')}, of which industrial operations are one part, so read it as context, not as a CAFO total. The simulator itself calculates the footprint of a single CAFO.`;
     $('intro-refs').innerHTML = ['fao2023', 'unep2021', 'ar6'].map((k) =>
@@ -262,9 +269,9 @@
   function stepPower() {
     return `<div class="section-label">${ic('zap', 'ic-sm')} Electricity grid</div>
       <div class="choices">${Object.entries(D.GRID_PRESETS).map(([k, g]) => choiceHtml({
-        key: k, attr: 'grid', ttl: g.label, sub: `${g.value} kg CO₂e/kWh`, pressed: k === state.grid,
+        key: k, attr: 'grid', ttl: g.label, sub: `${g.value} kg CO₂ equivalent/kWh`, pressed: k === state.grid,
       })).join('')}${choiceHtml({ key: 'custom', attr: 'grid', ttl: 'Custom', sub: 'User-defined factor', pressed: state.grid === 'custom' })}</div>
-      ${state.grid === 'custom' ? `<label class="inline-field">Grid factor <input type="number" id="grid-custom" step="any" min="0" value="${gridEF()}"> kg CO₂e/kWh</label>` : ''}
+      ${state.grid === 'custom' ? `<label class="inline-field">Grid factor <input type="number" id="grid-custom" step="any" min="0" value="${gridEF()}"> kg CO₂ equivalent/kWh</label>` : ''}
       <div class="section-label">${ic('frame', 'ic-sm')} System boundary</div>
       <div class="toggles">
         ${toggleHtml('includeFeed', 'Feed production', 'Purchased feed: Scope 3 emissions and feed water footprint')}
@@ -290,7 +297,7 @@
       ['scale', 'US EPA class', M.epaClass(state.species, size(), mmsId()).label],
       ['tank', 'Manure system', D.MMS[mmsId()].label],
       ['thermometer', 'Climate', CLIMATE_UI[state.climate].name],
-      ['zap', 'Grid factor', `${gridEF()} kg CO₂e/kWh`],
+      ['zap', 'Grid factor', `${gridEF()} kg CO₂ equivalent/kWh`],
       ['frame', 'Boundary', ['farm', state.includeFeed && 'feed', state.includeLand && 'fields'].filter(Boolean).join(' + ')],
       ['cloud', 'GWP set', D.GWP[state.gwp].label.replace('IPCC ', '')],
     ];
@@ -402,7 +409,7 @@
       s.label,
       D.MMS[mmsId()].label,
       `${CLIMATE_UI[state.climate].name} climate`,
-      `Grid ${gridEF()} kg CO₂e/kWh`,
+      `Grid ${gridEF()} kg CO₂ equivalent/kWh`,
       `${M.epaClass(state.species, size(), mmsId()).label}`,
     ].map((c) => `<span class="chip">${esc(c)}</span>`).join('');
 
@@ -523,9 +530,9 @@
     const perPlace = r.intensity.perPlace;
     const placeUnit = perPlace >= 1000 ? { v: perPlace / 1000, u: 't' } : { v: perPlace, u: 'kg' };
     kpis([
-      { icon: 'cloud', hero: true, label: 'Farm carbon footprint', value: tonnes(r.total), unit: 't CO₂e per year' },
-      { icon: 'tag', label: `Per ${s.fu.label}`, value: fmt(r.intensity.perFU, 2), unit: `kg CO₂e / ${s.fu.label}` },
-      { icon: 'warehouse', label: `Per ${singular(s.unitShort)}`, value: fmt(placeUnit.v, placeUnit.v >= 100 ? 0 : 2), unit: `${placeUnit.u} CO₂e / yr` },
+      { icon: 'cloud', hero: true, label: 'Farm carbon footprint', value: tonnes(r.total), unit: 't CO₂ equivalent* per year' },
+      { icon: 'tag', label: `Per ${s.fu.label}`, value: fmt(r.intensity.perFU, 2), unit: `kg CO₂ equivalent / ${s.fu.label}` },
+      { icon: 'warehouse', label: `Per ${singular(s.unitShort)}`, value: fmt(placeUnit.v, placeUnit.v >= 100 ? 0 : 2), unit: `${placeUnit.u} CO₂ equivalent / yr` },
       { icon: 'car', label: 'Passenger-car equivalent', value: fmt(r.total / 1000 / CAR_T_CO2E_PER_YR, 0), unit: 'cars driven for one year (4.6 t CO₂ each)' },
     ]);
 
@@ -544,20 +551,21 @@
     Object.keys(SCOPE_NODE).forEach((sc) => links.push({
       source: sc, target: 'total', value: D.SOURCES.filter((x) => x.scope === sc).reduce((a, x) => a + r.emissions[x.key], 0), color: 'var(--neutral-flow)',
     }));
-    const mu = C.massUnit(r.total, ' CO₂e/yr');
+    const mu = C.massUnit(r.total, ' CO₂ equivalent/yr');
     $('flow-title').innerHTML = `${ic('cloud', 'ic-sm')} Carbon footprint by source and scope`;
     C.sankey($('sankey'), nodes, links, { unit: mu.unit, div: mu.div, height: 420, animate, label: 'Greenhouse-gas emissions by source and scope' });
-    $('flow-note').innerHTML = `Emission sources (CO₂e, ${esc(r.gwp.label)} ${citeRefs([r.gwp.ref])}) grouped into GHG Protocol scopes ${citeRefs(['ghgp'])}. Animal & manure emissions ${citeRefs(['ipcc2019', 'ipcc2006'])}; feed ${citeRefs(['gerber2013', 'feedprint'])}; fuels ${citeRefs(['epaHub'])}. Hover any flow for its value.`;
+    $('flow-note').innerHTML = `Emission sources (CO₂ equivalent, ${esc(r.gwp.label)} ${citeRefs([r.gwp.ref])}) grouped into GHG Protocol scopes ${citeRefs(['ghgp'])}. Animal & manure emissions ${citeRefs(['ipcc2019', 'ipcc2006'])}; feed ${citeRefs(['gerber2013', 'feedprint'])}; fuels ${citeRefs(['epaHub'])}. Hover any flow for its value.`;
 
     const g = r.gases, gw = r.gwp;
     $('detail').innerHTML = `<div class="card"><div class="panel-head"><h2>Emissions by source</h2><small class="hint" id="em-unit"></small></div>
       <div id="em-chart"></div>
       <div class="fact-row">
-        <div class="fact">Methane (CH₄)<strong>${tonnes(g.CH4)} t</strong>${tonnes(g.CH4 * gw.CH4)} t CO₂e · ${fmt(100 * g.CH4 * gw.CH4 / r.total, 0)} % of total</div>
-        <div class="fact">Nitrous oxide (N₂O)<strong>${tonnes(g.N2O)} t</strong>${tonnes(g.N2O * gw.N2O)} t CO₂e · ${fmt(100 * g.N2O * gw.N2O / r.total, 0)} % of total</div>
-        <div class="fact">Per kg protein<strong>${fmt(r.intensity.perProtein, 1)} kg CO₂e</strong>all products, no allocation</div>
-      </div></div>`;
-    const emu = C.massUnit(r.total, ' CO₂e/yr');
+        <div class="fact">Methane (CH₄)<strong>${tonnes(g.CH4)} t</strong>${tonnes(g.CH4 * gw.CH4)} t CO₂ equivalent · ${fmt(100 * g.CH4 * gw.CH4 / r.total, 0)} % of total</div>
+        <div class="fact">Nitrous oxide (N₂O)<strong>${tonnes(g.N2O)} t</strong>${tonnes(g.N2O * gw.N2O)} t CO₂ equivalent · ${fmt(100 * g.N2O * gw.N2O / r.total, 0)} % of total</div>
+        <div class="fact">Per kg protein<strong>${fmt(r.intensity.perProtein, 1)} kg CO₂ equivalent</strong>all products, no allocation</div>
+      </div>
+      <p class="footnote">${co2eqDefinition(state.gwp)}</p></div>`;
+    const emu = C.massUnit(r.total, ' CO₂ equivalent/yr');
     $('em-unit').textContent = emu.unit;
     C.emissionBars($('em-chart'), D.SOURCES.map((src, i) => ({
       label: src.label, scope: src.scope, color: S(i + 1), value: r.emissions[src.key] / emu.div,
@@ -785,14 +793,14 @@
       ['Indirect N₂O, storage', 'N₂O = (Nex × FracGasMS × EF4 + Nex × FracLeachMS × EF5) × 44/28', ['ipcc2019', 'ipcc2006']],
       ['Manure N to fields', 'N applied = Nex × (1 − FracLossMS)', ['ipcc2019', 'ipcc2006']],
       ['N₂O from land application', 'N₂O = (N applied × EF1 + N applied × FracGASM × EF4 + N applied × FracLEACH × EF5) × 44/28 (Ch. 11)', ['ipcc2019']],
-      ['Feed production', 'CO₂e = DMI × feed footprint (kg CO₂e/kg DM, excluding land-use change)', ['gerber2013', 'feedprint']],
-      ['Electricity', 'CO₂e = kWh × grid emission factor', gridSrc.refs],
+      ['Feed production', 'CO₂ equivalent = DMI × feed footprint (kg CO₂ equivalent/kg DM, excluding land-use change)', ['gerber2013', 'feedprint']],
+      ['Electricity', 'CO₂ equivalent = kWh × grid emission factor', gridSrc.refs],
       ['On-farm fuels', 'CO₂ = diesel L × 2.70 + LPG L × 1.51', ['epaHub']],
-      ['Water supply', 'CO₂e = m³ × water-supply factor', []],
+      ['Water supply', 'CO₂ equivalent = m³ × water-supply factor', []],
       ['Water footprint — feed', 'Green / blue / grey m³ = DMI (t DM) × crop water footprint per t DM of the ration', ['hoekstra2011', 'mekonnen2011']],
       ['Water footprint — on farm', 'Blue m³ = drinking + service water', ['hoekstra2011']],
       ['Water footprint — manure', 'Grey m³ = nitrate-N leached (storage + fields) ÷ (c_max − c_nat), c_max = 10 mg N/L, c_nat = 0', ['franke2013']],
-      ['CO₂ equivalents', `CO₂e = CH₄ × GWP_CH₄ + N₂O × GWP_N₂O (${D.GWP[state.gwp].label}: ${D.GWP[state.gwp].CH4} / ${D.GWP[state.gwp].N2O})`, [gwpRef]],
+      ['CO₂ equivalents', `CO₂ equivalent = CH₄ × GWP_CH₄ + N₂O × GWP_N₂O (${D.GWP[state.gwp].label}: ${D.GWP[state.gwp].CH4} / ${D.GWP[state.gwp].N2O})`, [gwpRef]],
       ['Scopes', 'Scope 1 = on-farm (animals, manure, fuels, fields); Scope 2 = purchased electricity; Scope 3 = feed and water supply chains', ['ghgp']],
       ['Functional unit', 'kg fat- and protein-corrected milk (dairy); kg live-weight gain, eggs or weaned piglets (others); no co-product allocation', ['idf']],
       ['CAFO size class', 'Large / Medium thresholds by animal type', ['cfr']],
@@ -810,7 +818,7 @@
       <h3>Fixed constants</h3>
       <div class="table-scroll"><table class="src-table"><tr><th>Constant</th><th>Value</th><th>Source</th></tr>
         ${D.CONSTANTS.map((c) => `<tr><td>${esc(c.label)}</td><td class="nowrap">${esc(c.value)}</td><td>${citeHtml(c.src)}</td></tr>`).join('')}
-        <tr><td>Electricity grid factor (selected)</td><td class="nowrap">${gridEF()} kg CO₂e/kWh</td><td>${citeHtml(gridSrc)}</td></tr>
+        <tr><td>Electricity grid factor (selected)</td><td class="nowrap">${gridEF()} kg CO₂ equivalent/kWh</td><td>${citeHtml(gridSrc)}</td></tr>
       </table></div>
       <h3>References</h3>
       <ol class="ref-list">${REF_KEYS.map((k) => {
@@ -836,11 +844,11 @@
     add('scenario', 'GWP set', r.gwp.label, '');
     add('scenario', 'feed production included', String(state.includeFeed), '');
     add('scenario', 'land application included', String(state.includeLand), '');
-    D.SOURCES.forEach((src) => add('emissions', src.label, r.emissions[src.key], 'kg CO2e/yr'));
-    add('emissions', 'Total', r.total, 'kg CO2e/yr');
-    add('intensity', 'per functional unit', r.intensity.perFU, `kg CO2e/${s.fu.label}`);
-    add('intensity', 'per animal place', r.intensity.perPlace, 'kg CO2e/place/yr');
-    add('intensity', 'per kg protein', r.intensity.perProtein, 'kg CO2e/kg protein');
+    D.SOURCES.forEach((src) => add('emissions', src.label, r.emissions[src.key], 'kg CO2 equivalent/yr'));
+    add('emissions', 'Total', r.total, 'kg CO2 equivalent/yr');
+    add('intensity', 'per functional unit', r.intensity.perFU, `kg CO2 equivalent/${s.fu.label}`);
+    add('intensity', 'per animal place', r.intensity.perPlace, 'kg CO2 equivalent/place/yr');
+    add('intensity', 'per kg protein', r.intensity.perProtein, 'kg CO2 equivalent/kg protein');
     add('gases', 'CH4', r.gases.CH4, 'kg/yr');
     add('gases', 'N2O', r.gases.N2O, 'kg/yr');
     add('inputs', 'feed as fed', inv.feedAsFed, 'kg/yr');

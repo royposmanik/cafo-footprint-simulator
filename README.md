@@ -9,13 +9,13 @@ You choose the operation type and farm size. The tool estimates:
 
 - **Inputs:** feed (as fed, dry matter, crude protein), drinking and service water, electricity, diesel, LPG and purchased animals
 - **Outputs:** products (milk, eggs, live weight), mortalities, manure (wet mass, TS, VS, N), wastewater and gaseous emissions
-- **Emissions (CO2e):** enteric CH4, manure CH4, manure N2O (direct and indirect), N2O from land application, feed production, fuels, electricity and water supply
+- **Emissions (CO2 equivalent):** enteric CH4, manure CH4, manure N2O (direct and indirect), N2O from land application, feed production, fuels, electricity and water supply
 - **Water footprint:** green, blue and grey water (Water Footprint Network method) from feed crops, on-farm water use and manure nitrate leaching
 - **Material-flow (MFA) diagrams:** whole-farm mass, nitrogen, carbon and water flows drawn as Sankey diagrams
 
 ## How it works
 
-0. **Opening page.** A live counter shows global livestock greenhouse-gas emissions since local midnight, using FAO GLEAM 3: about 6.2 Gt CO2e per year, or about 196 t per second. Short cards below it explain why this matters. The counter covers all livestock supply chains, because there is no reliable worldwide estimate for CAFOs alone. Change `GLOBAL_CLOCK` in `js/data.js` if a CAFO-only figure becomes available.
+0. **Opening page.** A live counter shows global livestock greenhouse-gas emissions since local midnight, using FAO GLEAM 3: about 6.2 Gt CO2 equivalent per year, or about 196 t per second. Short cards below it explain why this matters. The counter covers all livestock supply chains, because there is no reliable worldwide estimate for CAFOs alone. Change `GLOBAL_CLOCK` in `js/data.js` if a CAFO-only figure becomes available.
 1. **Animal category.** Select one of 7 CAFO types.
 2. **Farm size.** Set the number of animal places with the slider, the presets or by typing a number. A scale shows where the farm falls against the US EPA Small / Medium / Large CAFO thresholds.
 3. **Manure management and climate.** Choose the manure system (the BAU default is tagged) and the climate.
@@ -23,7 +23,7 @@ You choose the operation type and farm size. The tool estimates:
 5. **Calculate.** An animated Sankey diagram appears, with four perspectives:
    - **Material flows:** feed, water and animals in; products, manure, wastewater and respiration out
    - **Nitrogen balance:** feed N through the herd and manure to air, water and soil
-   - **Carbon footprint:** emission sources → GHG Protocol scopes → total CO₂e, plus a breakdown by source
+   - **Carbon footprint:** emission sources → GHG Protocol scopes → total CO₂ equivalent, plus a breakdown by source
    - **Water footprint:** feed crops, drinking water, service water and manure nitrate → green / blue / grey → total, plus an inventory table
 
 Under the results, **Advanced settings** lets you edit every coefficient, and results update immediately. **Methods & sources** lists each calculation step and its references.
@@ -79,7 +79,7 @@ The model works on one **animal place for one year**, then multiplies by the num
 - **N excretion:** `Nex = DMI × CP/6.25 − N retained`. N retained is the N in milk, eggs and net live-weight change.
 - **Manure N2O:** direct `Nex × EF3`; indirect via FracGasMS × EF4 and FracLeachMS × EF5.
   N left after FracLossMS is land-applied, giving direct N2O (EF1) plus indirect N2O (FracGASM, FracLEACH).
-- **Feed:** DMI × feed footprint (kg CO2e/kg DM, cradle-to-farm-gate, **excluding land-use change**).
+- **Feed:** DMI × feed footprint (kg CO2 equivalent/kg DM, cradle-to-farm-gate, **excluding land-use change**).
 - **Energy and water:** activity × emission factor (grid, diesel, LPG and water supply).
 - **Water footprint:** feed green/blue/grey = DMI (t DM) × ration crop water footprint (m³/t DM). On-farm blue = drinking + service water. Manure grey = nitrate-N leached in storage and fields ÷ 10 mg N/L (natural background 0).
 - **GWP100:** AR6 by default (CH4 27, N2O 273). AR5 and AR4 can be selected.
@@ -116,11 +116,11 @@ Every default value carries a source tag in the app (Advanced settings) and in t
 | Water-supply emission factor | assumption — Pumping & treatment energy assumption |
 | Feed water footprint (green, blue, grey) | [19] assumption — Ration-weighted from global-average crop water footprints of maize, soybean and wheat (per t DM); forage assumed 400 / 50 / 50 m³/t DM |
 | Grey-water nitrate limit (10 mg N/L) | [21] from source |
-| Grid factor, United States avg. (0.37 kg CO2e/kWh) | [9] approximated — US national average, rounded |
-| Grid factor, EU-27 avg. (0.24 kg CO2e/kWh) | [10] approximated — EU-27 generation intensity, rounded |
-| Grid factor, Israel (0.5 kg CO2e/kWh) | assumption — Approximate national grid intensity — verify with Israeli national data |
-| Grid factor, Coal-heavy grid (0.85 kg CO2e/kWh) | assumption — Illustrative coal-dominated grid |
-| Grid factor, Mostly renewable (0.05 kg CO2e/kWh) | assumption — Illustrative low-carbon grid |
+| Grid factor, United States avg. (0.37 kg CO2 equivalent/kWh) | [9] approximated — US national average, rounded |
+| Grid factor, EU-27 avg. (0.24 kg CO2 equivalent/kWh) | [10] approximated — EU-27 generation intensity, rounded |
+| Grid factor, Israel (0.5 kg CO2 equivalent/kWh) | assumption — Approximate national grid intensity — verify with Israeli national data |
+| Grid factor, Coal-heavy grid (0.85 kg CO2 equivalent/kWh) | assumption — Illustrative coal-dominated grid |
+| Grid factor, Mostly renewable (0.05 kg CO2 equivalent/kWh) | assumption — Illustrative low-carbon grid |
 | IPCC AR6 GWP100 (CH4 27, N2O 273) | [3] from source |
 | IPCC AR5 GWP100 (CH4 28, N2O 265) | [4] from source |
 | IPCC AR4 GWP100 (CH4 25, N2O 298) | [5] from source |
@@ -158,7 +158,7 @@ Every default value carries a source tag in the app (Advanced settings) and in t
 19. Mekonnen, M.M. & Hoekstra, A.Y. (2011). The green, blue and grey water footprint of crops and derived crop products. Hydrology and Earth System Sciences 15, 1577–1600 (global averages, e.g. maize ≈ 1,222 m³/t; soybean ≈ 2,145 m³/t; wheat ≈ 1,827 m³/t).
 20. Mekonnen, M.M. & Hoekstra, A.Y. (2012). A global assessment of the water footprint of farm animal products. Ecosystems 15, 401–415 (benchmark product water footprints by production system).
 21. Franke, N.A., Boyacioglu, H. & Hoekstra, A.Y. (2013). Grey water footprint accounting: Tier 1 supporting guidelines. Value of Water Research Report Series No. 65, UNESCO-IHE, Delft (grey WF = pollutant load ÷ (c_max − c_nat)).
-22. FAO (2023). Pathways towards lower emissions — A global assessment of the greenhouse gas emissions and mitigation options from livestock agrifood systems. Food and Agriculture Organization of the United Nations, Rome (GLEAM 3: livestock supply chains ≈ 6.2 Gt CO2e in 2015, ≈ 12 % of anthropogenic emissions).
+22. FAO (2023). Pathways towards lower emissions — A global assessment of the greenhouse gas emissions and mitigation options from livestock agrifood systems. Food and Agriculture Organization of the United Nations, Rome (GLEAM 3: livestock supply chains ≈ 6.2 Gt CO2 equivalent in 2015, ≈ 12 % of anthropogenic emissions).
 23. United Nations Environment Programme & Climate and Clean Air Coalition (2021). Global Methane Assessment: Benefits and Costs of Mitigating Methane Emissions. UNEP, Nairobi (livestock ≈ 32 % of anthropogenic methane).
 24. US EPA. Greenhouse Gas Emissions from a Typical Passenger Vehicle (≈ 4.6 t CO2 per vehicle per year). https://www.epa.gov/greenvehicles/greenhouse-gas-emissions-typical-passenger-vehicle
 

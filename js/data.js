@@ -111,7 +111,7 @@
     },
     fao2023: {
       short: 'FAO 2023',
-      full: 'FAO (2023). Pathways towards lower emissions — A global assessment of the greenhouse gas emissions and mitigation options from livestock agrifood systems. Food and Agriculture Organization of the United Nations, Rome (GLEAM 3: livestock supply chains ≈ 6.2 Gt CO2e in 2015, ≈ 12 % of anthropogenic emissions).',
+      full: 'FAO (2023). Pathways towards lower emissions — A global assessment of the greenhouse gas emissions and mitigation options from livestock agrifood systems. Food and Agriculture Organization of the United Nations, Rome (GLEAM 3: livestock supply chains ≈ 6.2 Gt CO₂ equivalent in 2015, ≈ 12 % of anthropogenic emissions).',
     },
     unep2021: {
       short: 'UNEP & CCAC 2021',
@@ -209,7 +209,7 @@
     diesel:          { label: 'Diesel (feeding, manure handling)', unit: 'L/place/yr', group: 'Energy' },
     lpg:             { label: 'Propane / LPG (heating, hot water)', unit: 'L/place/yr', group: 'Energy' },
     // upstream
-    feedEF:          { label: 'Feed production footprint', unit: 'kg CO2e/kg DM', group: 'Upstream' },
+    feedEF:          { label: 'Feed production footprint', unit: 'kg CO₂ equivalent/kg DM', group: 'Upstream' },
     feedWFgreen:     { label: 'Feed water footprint — green', unit: 'L/kg DM', group: 'Water footprint' },
     feedWFblue:      { label: 'Feed water footprint — blue', unit: 'L/kg DM', group: 'Water footprint' },
     feedWFgrey:      { label: 'Feed water footprint — grey', unit: 'L/kg DM', group: 'Water footprint' },
@@ -309,10 +309,10 @@
   };
 
   const GLOBAL_META = {
-    gridEF:     { label: 'Grid electricity', unit: 'kg CO2e/kWh', value: 0.37, src: { refs: ['egrid'], basis: 'approx', note: 'US national average, rounded (or the grid chosen in step 4)' } },
-    dieselEF:   { label: 'Diesel combustion', unit: 'kg CO2e/L', value: 2.70, src: SRC.epa },
-    lpgEF:      { label: 'Propane / LPG combustion', unit: 'kg CO2e/L', value: 1.51, src: SRC.epa },
-    waterEF:    { label: 'Water supply (pumping, treatment)', unit: 'kg CO2e/m³', value: 0.30, src: SRC.water },
+    gridEF:     { label: 'Grid electricity', unit: 'kg CO₂ equivalent/kWh', value: 0.37, src: { refs: ['egrid'], basis: 'approx', note: 'US national average, rounded (or the grid chosen in step 4)' } },
+    dieselEF:   { label: 'Diesel combustion', unit: 'kg CO₂ equivalent/L', value: 2.70, src: SRC.epa },
+    lpgEF:      { label: 'Propane / LPG combustion', unit: 'kg CO₂ equivalent/L', value: 1.51, src: SRC.epa },
+    waterEF:    { label: 'Water supply (pumping, treatment)', unit: 'kg CO₂ equivalent/m³', value: 0.30, src: SRC.water },
     EF1:        { label: 'EF1 — direct N2O from applied manure N', unit: 'kg N2O-N/kg N', value: 0.010, src: SRC.soil },
     EF4:        { label: 'EF4 — N2O from volatilised N', unit: 'kg N2O-N/kg N', value: 0.010, src: SRC.soil },
     EF5:        { label: 'EF5 — N2O from leached N', unit: 'kg N2O-N/kg N', value: 0.011, src: SRC.soil },
