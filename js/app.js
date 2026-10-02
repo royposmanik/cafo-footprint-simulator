@@ -142,10 +142,10 @@
     $('clock-rate').textContent = fmt(T_PER_SEC, 0);
     $('clock-day').textContent = compact(T_PER_SEC * 86400) + ' CO₂ equivalent';
     $('clock-share').textContent = '≈ ' + fmt(CLK.shareOfAnthropogenic * 100, 0) + ' %';
-    $('clock-source').innerHTML = `Counter: ${compact(CLK.annualTonnesCO2e)} CO₂ equivalent per year for ${esc(CLK.scope)} (reference year ${CLK.refYear}), spread evenly over the year ${citeRefs(CLK.src.refs, 'intro-ref-')}. Methane share ${citeRefs(['unep2021'], 'intro-ref-')}; heat-trapping factors ${citeRefs(['ar6'], 'intro-ref-')}.`;
+    $('clock-source').innerHTML = `<b>Live counter.</b> ${compact(CLK.annualTonnesCO2e)} CO₂ equivalent per year for ${esc(CLK.scope)} (reference year ${CLK.refYear}), spread evenly over the year ${citeRefs(CLK.src.refs, 'intro-ref-')}. Methane share ${citeRefs(['unep2021'], 'intro-ref-')}; heat-trapping factors ${citeRefs(['ar6'], 'intro-ref-')}.`;
     $('co2-def-intro').innerHTML = co2eqDefinition('AR6').replace(/href="#ref-/g, 'href="#intro-ref-');
     $('why-methane').textContent = `≈ ${fmt(CLK.methaneShare * 100, 0)} %`;
-    $('intro-note').innerHTML = `Why livestock and not only CAFOs? There is no reliable worldwide estimate for CAFOs alone. The counter uses all livestock supply chains ${citeRefs(['fao2023'], 'intro-ref-')}, of which industrial operations are one part, so read it as context, not as a CAFO total. The simulator itself calculates the footprint of a single CAFO.`;
+    $('intro-note').innerHTML = `<b>Why livestock and not only CAFOs?</b> There is no reliable worldwide estimate for CAFOs alone. The counter uses all livestock supply chains ${citeRefs(['fao2023'], 'intro-ref-')}, of which industrial operations are one part, so read it as context, not as a CAFO total. The simulator itself calculates the footprint of a single CAFO.`;
     $('intro-refs').innerHTML = ['fao2023', 'unep2021', 'ar6'].map((k) =>
       `<li id="intro-ref-${k}">[${refNum(k)}] ${esc(D.REFS[k].full)}${D.REFS[k].url ? ` <a href="${esc(D.REFS[k].url)}" target="_blank" rel="noopener">${esc(D.REFS[k].url.replace(/^https?:\/\//, ''))}</a>` : ''}</li>`).join('');
   }
