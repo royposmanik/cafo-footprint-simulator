@@ -323,6 +323,9 @@
     state.maxStep = Math.max(state.maxStep, state.step);
     save();
     renderSetup();
+    // Bring the new step into view: on phones the Next button sits far down the stacked layout.
+    const top = $('stepper').getBoundingClientRect().top + window.scrollY - 12;
+    if (window.scrollY > top) window.scrollTo({ top, behavior: reducedMotion ? 'auto' : 'smooth' });
   }
 
   function bindSetup() {
