@@ -82,12 +82,17 @@
   /**
    * Minimal Sankey for a small, explicit column layout.
    * nodes: [{id, label, col, color?}]  links: [{source, target, value, color}]
-   * opts: {width, height, unit, div, label, animate}
+   * opts: {width, height, unit, div, label, animate, compact}
+   * compact (default: container narrower than 600 px) fits the diagram to the
+   * container and replaces node labels with numbered markers plus a legend.
    */
   function sankey(el, nodes, links, opts) {
-    const W = opts.width || 940, H = opts.height || 420;
-    const M = { l: 170, r: 200, t: 12, b: 12 };
-    const nodeW = 10, gap = 18, minH = 2;
+    el._sankeyArgs = { nodes, links, opts };   // lets the exporter redraw a full-size copy
+    const compact = opts.compact !== undefined ? opts.compact : (el.clientWidth > 0 && el.clientWidth < 600);
+    const W = compact ? Math.max(300, el.clientWidth) : (opts.width || 940);
+    const H = opts.height || 420;
+    const M = compact ? { l: 22, r: 22, t: 8, b: 8 } : { l: 170, r: 200, t: 12, b: 12 };
+    const nodeW = compact ? 8 : 10, gap = compact ? 10 : 18, minH = 2;
     links = links.filter((l) => l.value > 0);
     const byId = Object.fromEntries(nodes.map((n) => [n.id, { ...n, in: [], out: [] }]));
     links.forEach((l) => { byId[l.source].out.push(l); byId[l.target].in.push(l); });
@@ -126,8 +131,13 @@
       return `<path class="link" d="${d}" style="fill:${l.color};--col:${s.col}" data-tip="${esc(tipHtml(`${s.label} → ${t.label}`, f(l.value)))}"></path>`;
     }).join('');
 
-    // two-line labels need ~30px; push colliding labels apart within each column
-    const LABEL_H = 30;
+    // number nodes column by column, top to bottom (used by compact markers and legend)
+    colNodes.forEach((c) => c.sort((a, b) => a.y - b.y));
+    let num = 0;
+    colNodes.forEach((c) => c.forEach((n) => { n.num = ++num; }));
+
+    // two-line labels need ~30px (compact markers ~14px); push colliding labels apart within each column
+    const LABEL_H = compact ? 14 : 30;
     colNodes.forEach((c) => {
       let prev = -Infinity;
       c.forEach((n) => { n.ly = Math.max(n.y + n.h / 2, prev + LABEL_H); prev = n.ly; });
@@ -137,6 +147,23 @@
         [...c].reverse().forEach((n) => { n.ly = Math.min(n.ly - overflow, next - LABEL_H); next = n.ly; });
       }
     });
+
+    if (compact) {
+      const swatch = (n) => n.color || (n.col === 0 ? (n.out[0] || n.in[0]) : (n.in[0] || n.out[0])).color;
+      const marks = N.map((n) => {
+        const first = n.col === 0;
+        const tx = first ? n.x - 5 : n.x + nodeW + 5;
+        return `<g class="node" style="--col:${n.col}" data-tip="${esc(tipHtml(n.label, f(n.value)))}">
+          <rect x="${n.x}" y="${n.y}" width="${nodeW}" height="${n.h}" rx="2"${n.color ? ` style="fill:${n.color}"` : ''}></rect>
+          <text class="num" x="${tx}" y="${n.ly + 4}" text-anchor="${first ? 'end' : 'start'}">${n.num}</text>
+        </g>`;
+      }).join('');
+      const legend = [...N].sort((a, b) => a.num - b.num).map((n) =>
+        `<li data-tip="${esc(tipHtml(n.label, f(n.value)))}"><span class="lg-num">${n.num}</span><span class="lg-sw" style="background:${swatch(n)}"></span><span class="lg-name">${esc(n.label)}</span><span class="lg-val">${f(n.value)}</span></li>`).join('');
+      el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" data-compact="1" class="${opts.animate ? 'sankey-anim' : ''}" role="img" aria-label="${esc(opts.label || 'Flow diagram')}"><g class="links">${paths}</g><g class="nodes">${marks}</g></svg>
+        <ol class="sankey-legend" aria-label="Diagram key">${legend}</ol>`;
+      return;
+    }
 
     const nodeSvg = N.map((n) => {
       const first = n.col === 0;

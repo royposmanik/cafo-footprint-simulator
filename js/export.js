@@ -114,10 +114,22 @@
 
   /** Draw the branded figure sheet; returns { canvas, links } (links in px for PDF annotations). */
   async function renderSheet() {
-    const svg = $('#sankey svg');
+    let svg = $('#sankey svg');
     if (!svg) throw new Error('No figure to export yet.');
+    // Phones show a compact diagram with a numbered key; the sheet always uses the full labelled layout.
+    let tmp = null;
+    if (svg.dataset.compact && $('#sankey')._sankeyArgs) {
+      const a = $('#sankey')._sankeyArgs;
+      tmp = document.createElement('div');
+      tmp.className = 'sankey-wrap';
+      tmp.style.cssText = 'position:absolute;left:-10000px;top:0;width:1200px';
+      document.body.appendChild(tmp);
+      root.CAFO_CHARTS.sankey(tmp, a.nodes, a.links, { ...a.opts, animate: false, compact: false });
+      svg = tmp.querySelector('svg');
+    }
     await Promise.all(['400', '600', '700'].map((w) => document.fonts.load(`${w} 40px Figtree`).catch(() => null)));
     const [fig, logo, technion] = await Promise.all([svgToImage(svg), getImage(LAB.logo), getImage(LAB.technionLogo)]);
+    if (tmp) tmp.remove();
 
     const canvas = document.createElement('canvas');
     canvas.width = W; canvas.height = H;

@@ -677,6 +677,17 @@
       renderResults(true);
     }));
     $('btn-replay').addEventListener('click', () => renderResults(true));
+    // Switch between the full and compact (phone) Sankey when the screen size changes, e.g. on rotation.
+    let resizeTimer;
+    const isCompact = () => $('sankey').clientWidth < 600;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if ($('screen-results').hidden || !result) return;
+        const shownCompact = !!$('sankey').querySelector('svg[data-compact]');
+        if (isCompact() !== shownCompact) renderResults(false);
+      }, 200);
+    });
     const EX = window.CAFO_EXPORT;
     document.body.classList.toggle('is-phone', EX.isPhone());
     const exportWith = (btn, fn) => btn.addEventListener('click', async () => {
