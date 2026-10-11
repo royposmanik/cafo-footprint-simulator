@@ -30,6 +30,12 @@ You choose the operation type and farm size. The tool estimates:
 
 Under the results, **Advanced settings** lets you edit every coefficient, and results update immediately. **Methods & sources** lists each calculation step and its references.
 
+**Full technical documentation:** [docs/CAFO-Footprint-Simulator.md](docs/CAFO-Footprint-Simulator.md). After changing data or model, regenerate it:
+
+```bash
+node scripts/generate-docs.js
+```
+
 ## Running it
 
 Open `index.html` in any modern browser. There is no build step and no server. The only external resource is the Figtree web font; without internet the page falls back to the system font.
@@ -67,6 +73,8 @@ js/icons.js       inline line-icon set (Lucide-style SVG)
 js/export.js      branded PDF / JPEG export of the current figure
 js/app.js         UI wiring, assumptions editor, CSV export
 tests/sanity.js   runs every operation type and checks mass/N balances
+scripts/generate-docs.js  regenerates docs/CAFO-Footprint-Simulator.md
+docs/CAFO-Footprint-Simulator.md  full technical documentation (methods, all defaults, results, references)
 ```
 
 ## Method summary
