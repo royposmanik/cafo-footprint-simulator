@@ -15,7 +15,7 @@ You choose the operation type and farm size. The tool estimates:
 
 ## How it works
 
-0. **Opening page.** A live counter shows global livestock greenhouse-gas emissions since local midnight, using FAO GLEAM 3: about 6.2 Gt CO2 equivalent per year, or about 196 t per second. Short cards below it explain why this matters. The counter covers all livestock supply chains, because there is no reliable worldwide estimate for CAFOs alone. Change `GLOBAL_CLOCK` in `js/data.js` if a CAFO-only figure becomes available.
+0. **Opening page.** The first screen is kept visual: a large live counter of global livestock greenhouse-gas emissions since local midnight (FAO GLEAM 3: about 6.2 Gt CO2 equivalent per year, or about 196 t per second) and a *Start the simulator* button. Supporting numbers sit on icon cards that flip over when tapped, and the notes and references open from the ⓘ icon. The counter covers all livestock supply chains, because there is no reliable worldwide estimate for CAFOs alone. Change `GLOBAL_CLOCK` in `js/data.js` if a CAFO-only figure becomes available.
 1. **Animal category.** Select one of 7 CAFO types.
 2. **Farm size.** Set the number of animal places with the slider, the presets or by typing a number. A scale shows where the farm falls against the US EPA Small / Medium / Large CAFO thresholds.
 3. **Manure management and climate.** Choose the manure system (the BAU default is tagged) and the climate.
@@ -28,7 +28,7 @@ You choose the operation type and farm size. The tool estimates:
 
 **Saving figures.** On a computer, *Save PDF* creates an A4 landscape sheet: a header with the W2R Lab badge, lab details and link, and the Technion logo, the figure, scenario, key numbers, notes, and a dated footer. *Save JPEG* saves the same sheet as an image. On a phone, *Save to gallery* creates a JPEG and opens the share sheet, where "Save Image" adds it to the photo gallery. The W2R badge and Technion logo are loaded from w2r-lab.vercel.app, and PDFs use jsPDF from cdnjs.
 
-Under the results, **Advanced settings** lets you edit every coefficient, and results update immediately. **Methods & sources** lists each calculation step and its references.
+The results screen shows one headline number, the Sankey diagram and three icon cards with the other key numbers (tap to flip). The ⓘ icon on the diagram shows how it is calculated. The detailed data opens in a side sheet from the icons under the diagram: the **inventory** or **emissions breakdown** table, **Assumptions** (edit every coefficient; results update immediately) and **Methods & sources** (each calculation step and its references). Clicking any citation opens its reference.
 
 **Full technical documentation:** [docs/CAFO-Footprint-Simulator.md](docs/CAFO-Footprint-Simulator.md). After changing data or model, regenerate it:
 

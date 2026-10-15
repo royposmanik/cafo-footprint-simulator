@@ -16,25 +16,25 @@
   // ------------------------------------------------------------------ UI vocabulary
 
   const SPECIES_UI = {
-    dairy:    { sub: 'Milk production' },
-    beef:     { sub: 'Finishing cattle' },
-    swine:    { sub: 'Grow-finish pigs' },
-    sows:     { sub: 'Farrow-to-wean' },
-    broilers: { sub: 'Meat chickens' },
-    layers:   { sub: 'Table eggs' },
-    turkeys:  { sub: 'Meat turkeys' },
+    dairy:    { sub: 'Milk production', icon: 'milk' },
+    beef:     { sub: 'Finishing cattle', icon: 'steak' },
+    swine:    { sub: 'Grow-finish pigs', icon: 'pig' },
+    sows:     { sub: 'Farrow-to-wean', icon: 'sow' },
+    broilers: { sub: 'Meat chickens', icon: 'drumstick' },
+    layers:   { sub: 'Table eggs', icon: 'egg' },
+    turkeys:  { sub: 'Meat turkeys', icon: 'bird' },
   };
   const MMS_UI = {
-    lagoon: { sub: 'Liquid manure held in an open earthen basin' },
-    liquid: { sub: 'Slurry stored in a tank without crust' },
-    pit: { sub: 'Slurry stored in a pit below slatted floors' },
-    solid: { sub: 'Manure stacked and stored in heaps' },
-    drylot: { sub: 'Manure deposited and dried on unpaved pens' },
-    dailySpread: { sub: 'Manure removed and spread daily' },
-    poultryLitter: { sub: 'Manure mixed with bedding on the house floor' },
-    poultryNoLitter: { sub: 'Manure dried on belts or in high-rise pits' },
+    lagoon: { sub: 'Liquid manure held in an open earthen basin', icon: 'waves' },
+    liquid: { sub: 'Slurry stored in a tank without crust', icon: 'tank' },
+    pit: { sub: 'Slurry stored in a pit below slatted floors', icon: 'layers' },
+    solid: { sub: 'Manure stacked and stored in heaps', icon: 'mountain' },
+    drylot: { sub: 'Manure deposited and dried on unpaved pens', icon: 'sun' },
+    dailySpread: { sub: 'Manure removed and spread daily', icon: 'truck' },
+    poultryLitter: { sub: 'Manure mixed with bedding on the house floor', icon: 'feather' },
+    poultryNoLitter: { sub: 'Manure dried on belts or in high-rise pits', icon: 'wind' },
   };
-  const CLIMATE_UI = { cool: { name: 'Cool' }, temperate: { name: 'Temperate' }, warm: { name: 'Warm' } };
+  const CLIMATE_UI = { cool: { name: 'Cool', icon: 'snowflake' }, temperate: { name: 'Temperate', icon: 'thermometer' }, warm: { name: 'Warm', icon: 'sun' } };
   const SIZE_NAMES = ['Small', 'Medium', 'Large', 'Very large'];
   const STEPS = [
     { id: 'animals', icon: 'paw', label: 'Animal category', title: 'Animal category', sub: 'Select the type of operation to simulate.' },
@@ -44,6 +44,9 @@
   ];
   const LOADER = ['Building herd dynamics…', 'Computing feed and water inputs…', 'Estimating manure and nitrogen flows…', 'Converting emissions to CO₂ equivalent…'];
   const CAR_T_CO2E_PER_YR = 4.6; // typical US passenger vehicle, US EPA
+  // Detail table behind the dock's first icon, per lens (none for nitrogen).
+  const BREAKDOWN = { mass: ['table', 'Annual inventory'], nitrogen: null, carbon: ['chart', 'Emissions by source'], water: ['table', 'Water inventory'] };
+  const SHEETS = { about: ['info', 'About these numbers'], settings: ['sliders', 'Assumptions & coefficients'], sources: ['book', 'Methods & sources'] };
 
   // ------------------------------------------------------------------ citations
 
@@ -140,7 +143,7 @@
 
   function renderIntroStatic() {
     $('clock-rate').textContent = fmt(T_PER_SEC, 0);
-    $('clock-day').textContent = compact(T_PER_SEC * 86400) + ' CO₂ equivalent';
+    $('clock-day').textContent = compact(T_PER_SEC * 86400);
     $('clock-share').textContent = '≈ ' + fmt(CLK.shareOfAnthropogenic * 100, 0) + ' %';
     $('clock-source').innerHTML = `<b>Live counter.</b> ${compact(CLK.annualTonnesCO2e)} CO₂ equivalent per year for ${esc(CLK.scope)} (reference year ${CLK.refYear}), spread evenly over the year ${citeRefs(CLK.src.refs, 'intro-ref-')}. Methane share ${citeRefs(['unep2021'], 'intro-ref-')}; heat-trapping factors ${citeRefs(['ar6'], 'intro-ref-')}.`;
     $('co2-def-intro').innerHTML = co2eqDefinition('AR6').replace(/href="#ref-/g, 'href="#intro-ref-');
@@ -172,10 +175,10 @@
 
   // ================================================================== SETUP WIZARD
 
-  function choiceHtml({ key, attr, ttl, sub, meta, pressed, tag }) {
-    return `<button type="button" class="choice" data-${attr}="${key}" aria-pressed="${pressed}">
-      ${tag ? `<span class="tag">${esc(tag)}</span>` : ''}<span class="ttl">${esc(ttl)}</span>
-      ${sub ? `<span class="sub">${esc(sub)}</span>` : ''}${meta ? `<span class="meta">${esc(meta)}</span>` : ''}</button>`;
+  function choiceHtml({ key, attr, ttl, sub, pressed, tag, icon, title }) {
+    return `<button type="button" class="choice${icon ? ' has-ic' : ''}" data-${attr}="${key}" aria-pressed="${pressed}"${title ? ` title="${esc(title)}"` : ''}>
+      ${icon ? `<span class="choice-ic">${ic(icon)}</span>` : ''}${tag ? `<span class="tag">${esc(tag)}</span>` : ''}<span class="ttl">${esc(ttl)}</span>
+      ${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</button>`;
   }
 
   function renderSetup() {
@@ -200,12 +203,14 @@
     body.style.animation = 'none'; void body.offsetWidth; body.style.animation = '';
     body.innerHTML = ({ animals: stepAnimals, size: stepSize, manure: stepManure, power: stepPower })[step.id]();
     if (step.id === 'size') updateSizeBits();
+    $('btn-help').hidden = !body.querySelector('.hint');
     renderSummary();
   }
 
   function stepAnimals() {
     return `<div class="choices">${Object.entries(D.SPECIES).map(([k, s]) => choiceHtml({
-      key: k, attr: 'species', ttl: s.label, sub: SPECIES_UI[k].sub, meta: `Per ${singular(s.unitShort)} · result per ${s.fu.label}`, pressed: k === state.species,
+      key: k, attr: 'species', ttl: s.label, sub: SPECIES_UI[k].sub, icon: SPECIES_UI[k].icon,
+      title: `Sized per ${singular(s.unitShort)} · result per ${s.fu.label}`, pressed: k === state.species,
     })).join('')}</div><p class="hint">${esc(sp().note)}</p>`;
   }
 
@@ -255,12 +260,12 @@
     const s = sp();
     return `<div class="section-label">${ic('tank', 'ic-sm')} Manure management system</div>
       <div class="choices wide">${s.mms.options.map((k) => choiceHtml({
-        key: k, attr: 'mms', ttl: D.MMS[k].label, sub: MMS_UI[k].sub,
+        key: k, attr: 'mms', ttl: D.MMS[k].label, sub: MMS_UI[k].sub, icon: MMS_UI[k].icon,
         pressed: k === mmsId(), tag: k === s.mms.default ? 'BAU DEFAULT' : '',
       })).join('')}</div>
       <div class="section-label">${ic('thermometer', 'ic-sm')} Climate</div>
       <div class="choices">${Object.entries(D.CLIMATES).map(([k, v]) => choiceHtml({
-        key: k, attr: 'climate', ttl: CLIMATE_UI[k].name, sub: v.replace(/^[^(]*\(|\)$/g, ''),
+        key: k, attr: 'climate', ttl: CLIMATE_UI[k].name, sub: v.replace(/^[^(]*\(|\)$/g, ''), icon: CLIMATE_UI[k].icon,
         pressed: k === state.climate,
       })).join('')}</div>
       <p class="hint">Climate sets the methane conversion factor (MCF) of stored manure; warmer storage produces more methane.</p>`;
@@ -269,8 +274,8 @@
   function stepPower() {
     return `<div class="section-label">${ic('zap', 'ic-sm')} Electricity grid</div>
       <div class="choices">${Object.entries(D.GRID_PRESETS).map(([k, g]) => choiceHtml({
-        key: k, attr: 'grid', ttl: g.label, sub: `${g.value} kg CO₂ equivalent/kWh`, pressed: k === state.grid,
-      })).join('')}${choiceHtml({ key: 'custom', attr: 'grid', ttl: 'Custom', sub: 'User-defined factor', pressed: state.grid === 'custom' })}</div>
+        key: k, attr: 'grid', ttl: g.label, sub: `${g.value} kg CO₂ equivalent/kWh`, pressed: k === state.grid, icon: 'zap',
+      })).join('')}${choiceHtml({ key: 'custom', attr: 'grid', ttl: 'Custom', sub: 'User-defined factor', pressed: state.grid === 'custom', icon: 'pencil' })}</div>
       ${state.grid === 'custom' ? `<label class="inline-field">Grid factor <input type="number" id="grid-custom" step="any" min="0" value="${gridEF()}"> kg CO₂ equivalent/kWh</label>` : ''}
       <div class="section-label">${ic('frame', 'ic-sm')} System boundary</div>
       <div class="toggles">
@@ -336,6 +341,10 @@
     $('btn-back').addEventListener('click', () => goStep(state.step - 1));
     $('btn-next').addEventListener('click', () => (state.step === STEPS.length - 1 ? calculate() : goStep(state.step + 1)));
     $('btn-calc').addEventListener('click', calculate);
+    $('btn-help').addEventListener('click', (e) => {
+      const on = e.currentTarget.closest('.step-card').classList.toggle('help-open');
+      e.currentTarget.setAttribute('aria-pressed', String(on));
+    });
 
     const body = $('step-body');
     body.addEventListener('click', (e) => {
@@ -420,12 +429,23 @@
     $('warnings').innerHTML = r.warnings.map((w) => `<div class="warning-item" role="alert">${esc(w)}</div>`).join('');
 
     ({ mass: viewMass, nitrogen: viewNitrogen, carbon: viewCarbon, water: viewWater })[state.view](animate);
+
+    const bd = BREAKDOWN[state.view];
+    $('dock-breakdown').hidden = !bd;
+    if (bd) {
+      $('dock-breakdown-ic').innerHTML = ic(bd[0]);
+      $('dock-breakdown-lbl').textContent = bd[1];
+    } else if ($('sheet').open && sheetName === 'breakdown') closeSheet();
   }
 
+  /** Headline number in full; the other key numbers sit on cards that flip over when tapped. */
   function kpis(tiles) {
-    $('kpis').innerHTML = tiles.map((t) =>
-      `<div class="kpi ${t.hero ? 'hero' : ''}">${t.icon ? `<span class="kpi-ic">${ic(t.icon)}</span>` : ''}<div class="label">${esc(t.label)}</div>
-        <div class="value">${t.value}</div><div class="unit">${esc(t.unit)}</div></div>`).join('');
+    $('kpis').innerHTML = tiles.map((t) => t.hero
+      ? `<div class="kpi hero"><span class="kpi-ic">${ic(t.icon)}</span><span class="label">${esc(t.label)}</span>
+          <span class="value">${t.value}</span><span class="unit">${esc(t.unit)}</span></div>`
+      : `<button type="button" class="kpi flip" aria-pressed="false"><span class="flip-in">
+          <span class="flip-face front"><span class="kpi-ic">${ic(t.icon)}</span><span class="label">${esc(t.label)}</span></span>
+          <span class="flip-face back"><span class="back-lbl">${esc(t.label)}</span><span class="value">${t.value}</span><span class="unit">${esc(t.unit)}</span></span></span></button>`).join('');
   }
 
   const tonnes = (kg) => fmt(kg / 1000, kg / 1000 >= 100 ? 0 : 1);
@@ -677,6 +697,11 @@
       renderResults(true);
     }));
     $('btn-replay').addEventListener('click', () => renderResults(true));
+    $('btn-note').addEventListener('click', (e) => {
+      const note = $('flow-note');
+      note.hidden = !note.hidden;
+      e.currentTarget.setAttribute('aria-pressed', String(!note.hidden));
+    });
     // Switch between the full and compact (phone) Sankey when the screen size changes, e.g. on rotation.
     let resizeTimer;
     const isCompact = () => $('sankey').clientWidth < 600;
@@ -852,8 +877,49 @@
       }).join('')}</ol>`;
   }
 
+  // ================================================================== DATA SHEET & FLIP CARDS
+
+  let sheetName = null;
+  function openSheet(name, focusId) {
+    const dlg = $('sheet');
+    const [icon, title] = name === 'breakdown' ? BREAKDOWN[state.view] : SHEETS[name];
+    sheetName = name;
+    dlg.querySelectorAll('.sheet-panel').forEach((p) => { p.hidden = p.dataset.panel !== name; });
+    $('sheet-ico').innerHTML = ic(icon);
+    $('sheet-title').textContent = title;
+    // the tooltip must live in the dialog's top layer to show above it
+    const tip = document.querySelector('.tooltip');
+    if (tip) dlg.appendChild(tip);
+    if (!dlg.open) dlg.showModal();
+    $('sheet-body').scrollTop = 0;
+    const target = focusId && document.getElementById(focusId);
+    if (target) {
+      target.scrollIntoView({ block: 'center' });
+      target.classList.remove('flash'); void target.offsetWidth; target.classList.add('flash');
+    }
+  }
+  function closeSheet() { $('sheet').close(); }
+
+  $('sheet').addEventListener('close', () => {
+    const tip = document.querySelector('.tooltip');
+    if (tip) { tip.classList.remove('show'); document.body.appendChild(tip); }
+  });
+  $('sheet').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeSheet(); });   // backdrop
+  $('sheet-close').addEventListener('click', closeSheet);
+
   document.addEventListener('click', (e) => {
-    if (e.target.closest && e.target.closest('a.cite')) $('sources').open = true;
+    if (!e.target.closest) return;
+    const opener = e.target.closest('[data-sheet]');
+    if (opener) { openSheet(opener.dataset.sheet); return; }
+    const flip = e.target.closest('.flip');
+    if (flip) { flip.setAttribute('aria-pressed', String(flip.getAttribute('aria-pressed') !== 'true')); return; }
+    // citations jump to their reference, wherever it is shown
+    const cite = e.target.closest('a.cite');
+    if (cite) {
+      const id = cite.getAttribute('href').slice(1);
+      const panel = document.getElementById(id) && document.getElementById(id).closest('.sheet-panel');
+      if (panel) { e.preventDefault(); openSheet(panel.dataset.panel, id); }
+    }
   });
 
   // ================================================================== EXPORT & THEME
